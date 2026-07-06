@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood History • MoodScope</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="glass-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Mood History</span>
+            </div>
+            <p class="tagline">Track your emotional journey over time</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% if dates and moods %}
+            <!-- Stats Overview -->
+            
+            <!-- Mood Chart -->
+            <div class="chart-container">
+                <canvas id="moodChart" width="800" height="400"></canvas>
+            </div>
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h2>No Data Yet</h2>
+                <p>Start writing journal entries to see your mood history visualized here.</p>
+                <a href="/" class="detect-btn">
+                    <i class="fas fa-pen"></i>
+                    Write First Entry
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="/" class="nav-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+      const ctx = document.getElementById('moodChart').getContext('2d');
+      const moodLabels = ['Very Sad', 'Sad', 'Neutral', 'Happy', 'Very Happy'];
+      const moodValues = {
+        'Very Sad': 1,
+        'Sad': 2,
+        'Neutral': 3,
+        'Happy': 4,
+        'Very Happy': 5
+      };
+    
+      const rawMoods = {{ moods|tojson }};
+      const numericMoods = rawMoods.map(m => {
+        const cleaned = m.replace(/[^\w\s]/gi, "").trim();
+        return moodValues[cleaned] || 3;
+      });
+    
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ dates|tojson }},
+          datasets: [{
+            label: 'Mood Over Time',
+            data: numericMoods,
+            borderColor: '#4a90e2',
+            pointBackgroundColor: '#ffffff',
+            borderWidth: 3,
+            fill: false,
+            tension: 0.4
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: '#ffffff',  // legend text color
+                font: { size: 14 }
+              }
+            },
+            title: {
+              display: true,
+              text: 'Mood Tracker',
+              color: '#ffffff',
+              font: { size: 18 }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#ffffff'  // X-axis labels
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'  // faint white gridlines
+              }
+            },
+            y: {
+              min: 1,
+              max: 5,
+              ticks: {
+                color: '#ffffff',  // Y-axis labels
+                callback: val => moodLabels[val - 1],
+                stepSize: 1
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            }
+          }
+        }
+      });
+    </script>
+    
+
+    <style>
+        /* Additional styles for history page */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .stat-info h3 {
+            color: var(--text-light);
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .stat-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 400px;
+            position: relative;
+        }
+
+        .section-title {
+            color: var(--text-light);
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .timeline-item.fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .timeline-marker {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-marker.very-happy { background: linear-gradient(135deg, #2b8a3e, #51cf66); }
+        .timeline-marker.happy { background: linear-gradient(135deg, #37b24d, #40c057); }
+        .timeline-marker.neutral { background: linear-gradient(135deg, #f59f00, #ffd43b); }
+        .timeline-marker.sad { background: linear-gradient(135deg, #e03131, #ff6b6b); }
+        .timeline-marker.very-sad { background: linear-gradient(135deg, #c92a2a, #ff8787); }
+
+        .timeline-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .timeline-mood {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-mood.very-happy { background: linear-gradient(135deg, #2b8a3e, #51cf66); }
+        .timeline-mood.happy { background: linear-gradient(135deg, #37b24d, #40c057); }
+        .timeline-mood.neutral { background: linear-gradient(135deg, #f59f00, #ffd43b); }
+        .timeline-mood.sad { background: linear-gradient(135deg, #e03131, #ff6b6b); }
+        .timeline-mood.very-sad { background: linear-gradient(135deg, #c92a2a, #ff8787); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state h2 {
+            color: var(--text-light);
+            margin-bottom: 16px;
+            font-size: 2rem;
+        }
+
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .detect-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .detect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 300px;
+                padding: 20px;
+            }
+            
+            .timeline::before {
+                left: 25px;
+            }
+            
+            .timeline-marker {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .timeline-content {
+                padding: 12px;
+            }
+        }
+    </style>
+</body>
+</html>

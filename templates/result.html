@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Analysis • MoodScope</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: {{ bg_color | default('linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)') }} !important;
+      background-size: 400% 400% !important;
+      animation: gradient 15s ease infinite !important;
+      color: black !important;
+    }
+
+    .mood-container {
+      background: {{ color | default('rgba(255, 255, 255, 0.3)') }} !important;
+      backdrop-filter: blur(20px) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      color: black !important;
+    }
+
+    .header span,
+    .tagline,
+    .main-title,
+    .gradient-text,
+    .message-text,
+    .card-title,
+    .modern-quote,
+    .stat-info h3,
+    .stat-info p,
+    .nav-link,
+    .nav-link.primary {
+      color: rgba(0, 0, 0, 0.9) !important;
+    }
+
+    .mood-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: rgba(0, 0, 0, 0.9);
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .message-card {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px 0;
+      backdrop-filter: blur(10px);
+      position: relative;
+      text-align: center;
+      color: rgba(0, 0, 0, 0.9);
+    }
+
+    .message-icon {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--primary-gradient);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-size: 1rem;
+    }
+
+    .journal-card {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 40px 0;
+      backdrop-filter: blur(10px);
+      color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modern-quote {
+      font-style: italic;
+      color: rgba(0, 0, 0, 0.9);
+      font-size: 1.2rem;
+      line-height: 1.7;
+      margin: 0;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 25px;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      color: black !important;
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link.primary {
+      background: var(--primary-gradient);
+      color: white !important;
+    }
+
+    .nav-link:hover {
+      background: rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(10px);
+      color: rgba(0, 0, 0, 0.9);
+    }
+
+    .stat-icon {
+      background: var(--primary-gradient);
+      color: black;
+    }
+
+    .stat-info h3, .stat-info p {
+      color: rgba(0, 0, 0, 0.9);
+    }
+
+    .main-title {
+      color: rgba(0, 0, 0, 0.9);
+      font-weight: 700;
+    }
+
+    .tagline {
+      color: rgba(0, 0, 0, 0.8);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Animated Background Elements -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+  </div>
+
+  <div class="glass-container mood-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <i class="fas fa-chart-pie"></i>
+        <span>Mood Analysis</span>
+      </div>
+      <p class="tagline">Your emotional insight is ready</p>
+    </div>
+
+    <!-- Mood Result Content -->
+    <div class="main-content">
+      <div class="mood-result-header">
+        <div class="mood-icon">
+          {% if 'Very Happy' in mood %}
+          <i class="fas fa-laugh-beam"></i>
+          {% elif 'Happy' in mood %}
+          <i class="fas fa-smile"></i>
+          {% elif 'Neutral' in mood %}
+          <i class="fas fa-meh"></i>
+          {% elif 'Sad' in mood %}
+          <i class="fas fa-frown"></i>
+          {% else %}
+          <i class="fas fa-sad-cry"></i>
+          {% endif %}
+        </div>
+        <h1 class="main-title">
+          Your Mood is: <span class="gradient-text">{{ mood | default('Unknown') }}</span>
+        </h1>
+      </div>
+
+      <!-- Motivation Message -->
+      <div class="message-card">
+        <div class="message-icon">
+          <i class="fas fa-quote-left"></i>
+        </div>
+        <p class="message-text">{{ message | default('No message available.') }}</p>
+      </div>
+
+      <!-- Journal Entry -->
+      <div class="journal-card">
+        <h3 class="card-title">
+          <i class="fas fa-book-open"></i>
+          Your Journal Entry
+        </h3>
+        <div class="journal-content">
+          <blockquote class="modern-quote">
+            "{{ text | default('No text available.') }}"
+          </blockquote>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+      <a href="/" class="nav-link">
+        <i class="fas fa-arrow-left"></i>
+        Write Another Entry
+      </a>
+      <a href="/history" class="nav-link primary">
+        <i class="fas fa-chart-bar"></i>
+        View Mood History
+        <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

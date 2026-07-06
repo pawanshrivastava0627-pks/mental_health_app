@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodScope • Emotion Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="glass-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>Welcome</span>
+            </div>
+            <div class="tagline">Understand your emotions through AI</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1 class="main-title">
+                How are you <span class="gradient-text">feeling</span> today?
+            </h1>
+            <p class="subtitle">Share your thoughts and discover your emotional landscape</p>
+
+            <form method="POST" class="journal-form">
+                <div class="input-container">
+                    <textarea 
+                        name="journal" 
+                        rows="6" 
+                        placeholder="Write about your day, your thoughts, or anything on your mind..."
+                        class="journal-textarea"
+                    ></textarea>
+                    <div class="textarea-footer">
+                        <div class="char-hint">
+                            <i class="fas fa-keyboard"></i>
+                            Write 20+ characters for better analysis
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="detect-btn">
+                    <span class="btn-content">
+                        <i class="fas fa-search"></i>
+                        Analyze My Mood
+                    </span>
+                    <div class="btn-loader">
+                        <div class="loader"></div>
+                    </div>
+                </button>
+            </form>
+
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Private & Secure</h3>
+                    <p>Your entries are stored locally and never shared</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your emotional journey over time</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Powered</h3>
+                    <p>Advanced sentiment analysis technology</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="/history" class="nav-link">
+                <i class="fas fa-chart-bar"></i>
+                View Mood History
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <script>
+        // Textarea auto-resize
+        const textarea = document.querySelector('.journal-textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Button loading state
+        const form = document.querySelector('.journal-form');
+        const button = document.querySelector('.detect-btn');
+        
+        form.addEventListener('submit', function() {
+            button.classList.add('loading');
+        });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Animate features on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
