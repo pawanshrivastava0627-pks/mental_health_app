@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.env          # <-- 🔥 YEH SABSE ZAROORI HAI! .env file kabhi push mat karna
+.DS_Store
+
+# Database (local data)
+*.db
+*.sqlite3
+mood_log.csv   # Purani CSV ab bhi hai toh ignore karo
+
+# VS Code / IDE
+.vscode/
+.idea/
